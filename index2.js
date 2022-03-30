@@ -1,21 +1,17 @@
-const allowedChars = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 1, 2, 3, 4, 5, 6, 7, 8, 9]
+const allowedChars = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'A', 'B', 'C', 'D', 'E', 'F', 'G', '1', '2', '3', '4', '5', '6', '7', '8', '9']
 
 function login(password) {
   return password === 'ACcAA2'
 }
 
-function brute(maxLength=6) {
+function* brute(maxLength=6) {
   for (let i=1; i<=maxLength; i++) {
     let rawPassword = createPasswordTemplate(i);
     while(rawPassword) {
-      let password = convertPassword(rawPassword)
-      if (login(password)) {
-        return password
-      }
+      yield convertPassword(rawPassword)
       rawPassword = generatorPassword(rawPassword)
     }
   }
-  return null
 }
 
 function createPasswordTemplate(length) {
@@ -42,5 +38,11 @@ function generatorPassword(rawPass) {
 }
 
 console.time()
-console.log(brute())
+const iterator = brute()
+for (let pass of iterator) {
+  if (login(pass)) {
+    console.log(pass)
+    break
+  }
+}
 console.timeEnd()
