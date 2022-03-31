@@ -13,7 +13,7 @@ function getRandomTime(kof){
 async function login(password) {
   const time = getRandomTime(5000);
   await sleep(time);
-  return password === 'bb';
+  return password === 'aa';
 }
 
 function* brute(maxLength=2) {
@@ -49,12 +49,14 @@ function generatorPassword(rawPass) {
   return null;
 }
 
-const iterator = brute()
-for (let pass of iterator) {
-  login(pass).then((result) => {
+const iterator = brute();
+
+(async () => {
+  for (let pass of iterator) {
     console.log('try pass:', pass)
-    if (result) {
-      console.log('correct pass:', pass);
+    if (await login(pass)) {
+      console.log('correct pass:', pass)
+      break
     }
-  })
-}
+  }
+})()
