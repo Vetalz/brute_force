@@ -1,10 +1,22 @@
-const allowedChars = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'A', 'B', 'C', 'D', 'E', 'F', 'G', '1', '2', '3', '4', '5', '6', '7', '8', '9']
+const allowedChars = ['a', 'b'];
 
-function login(password) {
-  return password === 'ACcAA2'
+function sleep(time) {
+  return new Promise(resolve => {
+    setTimeout(() => resolve(), time);
+  })
 }
 
-function* brute(maxLength=6) {
+function getRandomTime(kof){
+  return Math.round(Math.random() * kof);
+}
+
+async function login(password) {
+  const time = getRandomTime(5000);
+  await sleep(time);
+  return password === 'bb';
+}
+
+function* brute(maxLength=2) {
   for (let i=1; i<=maxLength; i++) {
     let rawPassword = createPasswordTemplate(i);
     while(rawPassword) {
@@ -37,12 +49,12 @@ function generatorPassword(rawPass) {
   return null;
 }
 
-console.time()
 const iterator = brute()
 for (let pass of iterator) {
-  if (login(pass)) {
-    console.log(pass)
-    break
-  }
+  login(pass).then((result) => {
+    console.log('try pass:', pass)
+    if (result) {
+      console.log('correct pass:', pass);
+    }
+  })
 }
-console.timeEnd()
