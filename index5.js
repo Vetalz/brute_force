@@ -4,38 +4,39 @@ class Queue {
   }
 
   tasks = [];
-  count = 0;
+  processing = 0;
+  callback;
 
   add(task) {
     this.tasks.push(task);
     this.execute()
   }
 
-  isFree() {
-    return this.count < this.concurrency;
-  }
-
   execute() {
-    if (this.count < this.concurrency) {
-      this.count++;
-      const task = this.tasks.shift()
-      const [callback, args] = task;
-      callback(...args).then((result) => this.fulfilled(result, task))
-      console.log('promise:', args[0])
-    }
-  }
-
-  fulfilled(result, args) {
-    console.log('fulfilled:', args[1][0]);
-    if (!this.isDone()) {
+    if (this.isEmpty()) {
       return;
     }
-    this.count--;
-    this.execute();
+    if (this.processing >= this.concurrency) {
+      return;
+    }
+    this.processing++;
+    const task = this.tasks.shift();
+    const [callback, args] = task;
+    callback(...args).then((result) => {
+      console.log('fulfilled:', args[0]);
+      this.processing--;
+      this.execute();
+      this.callback([result, args[0]])
+    });
+    console.log('promise:', args[0]);
   }
 
-  isDone() {
-    return this.tasks.length;
+  isEmpty() {
+    return this.tasks.length === 0;
+  }
+
+  onFulfilled(callback) {
+    this.callback = callback;
   }
 }
 
@@ -44,6 +45,13 @@ const queue = new Queue();
 for (let i=0; i<200; i++) {
   queue.add([login, [i]])
 }
+
+queue.onFulfilled((result) => {
+  if(result[0]) {
+    queue.tasks = [];
+    console.log(result[1])
+  }
+})
 
 
 
@@ -61,5 +69,5 @@ function getRandomTime(kof){
 async function login(password) {
   const time = getRandomTime(2000);
   await sleep(time);
-  return password === 'aa';
+  return password === 15;
 }
