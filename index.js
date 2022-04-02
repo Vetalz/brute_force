@@ -5,22 +5,20 @@ function login(password) {
   return password === 'aCbAcB';
 }
 
-function getPasswords(arr, memo) {
-  let current;
-  memo = memo || [];
-  for (let i = 0; i < arr.length; i++) {
-    current = arr.splice(i, 1);
-    if (arr.length === 0) {
-      passwords.push(memo.concat(current).join(''));
-    }
-    getPasswords(arr, memo.concat(current));
-    arr.splice(i, 0, current[0]);
+function getPasswords(arr, maxLength, str='') {
+  if (str.length === maxLength) {
+    passwords.push(str)
+    return;
   }
-  return passwords;
+  for(let i of arr) {
+    getPasswords(arr, maxLength,str+i)
+  }
 }
 
-function brute() {
-  getPasswords(allowedChars);
+function brute(maxLength=6) {
+  for(let i=1; i<=maxLength; i++) {
+    getPasswords(allowedChars, i);
+  }
   for (let pass of passwords) {
     if (login(pass)) {
       return pass;
