@@ -1,4 +1,4 @@
-const allowedChars = ['a', 'b'];
+const allowedChars = ['a', 'b', 'c', 'd'];
 
 function sleep(time) {
   return new Promise(resolve => {
@@ -13,10 +13,10 @@ function getRandomTime(kof){
 async function login(password) {
   const time = getRandomTime(2000);
   await sleep(time);
-  return password === 'aa';
+  return password === 'aabc';
 }
 
-function* brute(maxLength=2) {
+function* brute(maxLength=4) {
   for (let i=1; i<=maxLength; i++) {
     let rawPassword = createPasswordTemplate(i);
     while(rawPassword) {
@@ -56,6 +56,7 @@ class Queue {
   }
 
   tasks = [];
+  isFound = false;
   processing = 0;
   callback;
 
@@ -65,7 +66,7 @@ class Queue {
   }
 
   execute() {
-    if (this.isEmpty()) {
+    if (this.isEmpty() || this.isFound) {
       return;
     }
     if (this.processing >= this.concurrency) {
@@ -95,12 +96,15 @@ class Queue {
 const iterator = brute();
 const queue = new Queue();
 
-let itemObj = iterator.next();
-queue.add([login, [itemObj.value]]);
+for (let i=0; i<queue.concurrency; i++) {
+  let itemObj = iterator.next();
+  queue.add([login, [itemObj.value]]);
+}
 queue.onFulfilled((result) => {
   if(result[0]) {
     queue.tasks = [];
     console.log(result[1]);
+    queue.isFound =true;
     return;
   }
   let itemObj = iterator.next();
